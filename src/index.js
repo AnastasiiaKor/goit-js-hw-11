@@ -40,7 +40,6 @@ addBackToTop({
 });
 
 Notify.init(settings);
-Notify.failure('Я умничка, сладкая булочка!');
 
 function onClick(event) {
   event.preventDefault();
@@ -90,6 +89,14 @@ function loadPics(value) {
     .then(response => response.data)
     .then(data => {
       getData(data);
+      const { height: cardHeight } = document
+        .querySelector('.gallery')
+        .firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+        top: cardHeight * 0.3,
+        behavior: 'smooth',
+      });
       const lastCard = document.querySelector('.photo-card:last-child');
       if (lastCard) {
         infiniteObserver.observe(lastCard);
