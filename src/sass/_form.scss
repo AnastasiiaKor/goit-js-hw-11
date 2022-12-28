@@ -1,3 +1,15 @@
+body::-webkit-scrollbar {
+  width: 15px;
+}
+
+body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #c72169;
+  border-radius: 10px;
+}
 html {
   box-sizing: border-box;
 }
@@ -13,6 +25,10 @@ img {
   max-width: 100%;
   object-fit: cover;
   height: 100%;
+  transition: transform 250ms ease-in;
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 .search-form {
@@ -20,7 +36,6 @@ img {
   justify-content: center;
   padding-top: 40px;
   padding-bottom: 40px;
-  background-color: #fadadd;
 }
 .search-form input {
   font-size: 30px;
@@ -42,7 +57,7 @@ img {
     outline-color: #c72169;
   }
 }
-.search-form button {
+button {
   width: 200px;
   font-size: 30px;
   color: #c72169;
@@ -67,13 +82,31 @@ img {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 }
-// .info{}
-// .info-item{}
+.info {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  padding-left: 10px;
+  color: #c72169;
+}
+.info-item {
+  font-size: 30px;
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+}
 .photo-card {
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  width: calc(100% / 4 - 30px);
+  background-color: rgba(255, 255, 255, 0.6);
+  flex-basis: calc(100% / 4 - 60px);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.img-wrapper {
+  height: 300px;
+}
+button[disabled] {
+  color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0.6);
 }

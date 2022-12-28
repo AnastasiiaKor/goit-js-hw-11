@@ -2,25 +2,66 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { settings } from './notifixSetting';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { getPics } from './getPics';
+import { fetchData } from './getPics';
 import renderCard from './templates/renderCard.hbs';
-console.log(renderCard);
+import { addBackToTop } from 'vanilla-back-to-top';
+
 const form = document.querySelector('#search-form');
-const gallery = document.querySelector('.gallery');
+const galleryEl = document.querySelector('.gallery');
+
+const {
+  elements: [input, button],
+} = form;
+let isFirstFetch = true;
+let page = 1;
+
+const infiniteObserver = new IntersectionObserver(([entry], observer) => {
+  if (entry.isIntersecting) {
+    observer.unobserve(entry.target);
+    isFirstFetch = false;
+    if (page === 13) {
+      Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+
+      return;
+    }
+    loadPics(input.value, (page += 1));
+  }
+}, {});
+form.addEventListener('submit', onFormSubmit);
+form.addEventListener('input', onFormInput);
+galleryEl.addEventListener('click', onClick);
+
+addBackToTop({
+  backgroundColor: '#c72169',
+  diameter: 60,
+  scrollDuration: 500,
+});
+
 Notify.init(settings);
 Notify.failure('Я умничка, сладкая булочка!');
-form.addEventListener('submit', onFormSubmit);
+
+function onClick(event) {
+  event.preventDefault();
+
+  let gallery = new SimpleLightbox('.gallery a', {
+    captionsData: `alt`,
+    captionDelay: 250,
+  });
+}
 
 function onFormSubmit(event) {
   event.preventDefault();
-  const {
-    elements: [input, button],
-  } = event.currentTarget;
+  if (input.value) {
+    galleryEl.innerHTML = '';
+    page = 1;
+    loadPics(input.value, page);
 
-  getPics(input.value)
-    .then(response => response.data)
-    .then(getData)
-    .catch(error => console.log(error));
+    button.disabled = true;
+  } else {
+    Notify.failure('Plese, fill the search field!');
+  }
 }
 function getData(data) {
   if (!data.hits.length) {
@@ -29,9 +70,30 @@ function getData(data) {
     );
     return;
   }
-  Notify.success(`Hooray! We found ${data.totalHits} images.`);
+  if (isFirstFetch) {
+    Notify.success(`Hooray! We found ${data.totalHits} images.`);
+  }
+
   const { hits } = data;
-  gallery.innerHTML = renderCard({ hits });
+  const markup = renderCard({ hits });
+  galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
-// largeImageURL - ссылка на большое изображение.
+function onFormInput(event) {
+  if (!event.target.value) {
+    galleryEl.innerHTML = '';
+  }
+  button.disabled = false;
+}
+function loadPics(value) {
+  fetchData(value, page)
+    .then(response => response.data)
+    .then(data => {
+      getData(data);
+      const lastCard = document.querySelector('.photo-card:last-child');
+      if (lastCard) {
+        infiniteObserver.observe(lastCard);
+      }
+    })
+    .catch(error => console.log(error));
+}
