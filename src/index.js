@@ -28,13 +28,14 @@ let totalHits = 0;
 const infiniteObserver = new IntersectionObserver((entries, observer) => {
   entries.forEach(entry => {
     isFirstFetch = false;
+    console.log(entry);
     if (entry.isIntersecting) {
-      console.log(galleryEl.children.length);
+      infiniteObserver.unobserve(entry.target);
       if (galleryEl.children.length === totalHits) {
         Notify.failure(
           "We're sorry, but you've reached the end of search results."
         );
-        infiniteObserver.unobserve(entry.target);
+
         return;
       }
       loadPics(input.value, (page += 1));
@@ -54,12 +55,12 @@ Notify.init(settings);
 
 function onFormSubmit(event) {
   event.preventDefault();
+  guard.hidden = true;
 
   if (input.value) {
     galleryEl.innerHTML = '';
     page = 1;
     loadPics(input.value, page);
-    button.disabled = true;
   } else {
     Notify.failure('Plese, fill the search field!');
   }
@@ -68,15 +69,16 @@ function onFormSubmit(event) {
 function onFormInput(event) {
   if (!event.target.value) {
     galleryEl.innerHTML = '';
+    guard.hidden = true;
   }
   button.disabled = false;
 }
 async function loadPics(value) {
   try {
-    const response = await fetchData(value, page);
-    const { data } = response;
+    const data = await fetchData(value, page);
     totalHits = data.totalHits;
     renderGallery(data.hits, totalHits);
+    infiniteObserver.observe(guard);
   } catch (error) {
     console.log(error);
   }
@@ -93,7 +95,7 @@ function renderGallery(hits, totalHits) {
   }
   const markup = renderCard({ hits });
   galleryEl.insertAdjacentHTML('beforeend', markup);
-  infiniteObserver.observe(guard);
+  guard.hidden = false;
   gallery.refresh();
   smoothScroll();
 }
