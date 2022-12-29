@@ -28,7 +28,6 @@ let totalHits = 0;
 const infiniteObserver = new IntersectionObserver((entries, observer) => {
   entries.forEach(entry => {
     isFirstFetch = false;
-    console.log(entry);
     if (entry.isIntersecting) {
       infiniteObserver.unobserve(entry.target);
       if (galleryEl.children.length === totalHits) {
