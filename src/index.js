@@ -8,11 +8,9 @@ import { addBackToTop } from 'vanilla-back-to-top';
 
 const form = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
-const guard = document.querySelector('.js-guard');
 const {
   elements: [input, button],
 } = form;
-let isFirstFetch = true;
 let page = 1;
 const options = {
   root: null,
@@ -25,22 +23,8 @@ let gallery = new SimpleLightbox('.gallery a', {
 });
 let totalHits = 0;
 
-const infiniteObserver = new IntersectionObserver((entries, observer) => {
-  entries.forEach(entry => {
-    isFirstFetch = false;
-    if (entry.isIntersecting) {
-      infiniteObserver.unobserve(entry.target);
-      if (galleryEl.children.length === totalHits) {
-        Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-        );
+const infiniteObserver = new IntersectionObserver(onObserve, options);
 
-        return;
-      }
-      loadPics(input.value, (page += 1));
-    }
-  });
-}, options);
 form.addEventListener('submit', onFormSubmit);
 form.addEventListener('input', onFormInput);
 
@@ -54,7 +38,6 @@ Notify.init(settings);
 
 function onFormSubmit(event) {
   event.preventDefault();
-  guard.hidden = true;
 
   if (input.value) {
     galleryEl.innerHTML = '';
@@ -68,7 +51,6 @@ function onFormSubmit(event) {
 function onFormInput(event) {
   if (!event.target.value) {
     galleryEl.innerHTML = '';
-    guard.hidden = true;
   }
   button.disabled = false;
 }
@@ -77,6 +59,7 @@ async function loadPics(value) {
     const data = await fetchData(value, page);
     totalHits = data.totalHits;
     renderGallery(data.hits, totalHits);
+    const guard = document.querySelector('.photo-card:last-child');
     infiniteObserver.observe(guard);
   } catch (error) {
     console.log(error);
@@ -89,12 +72,11 @@ function renderGallery(hits, totalHits) {
     );
     return;
   }
-  if (isFirstFetch) {
+  if (page === 1) {
     Notify.success(`Hooray! We found ${totalHits} images.`);
   }
   const markup = renderCard({ hits });
   galleryEl.insertAdjacentHTML('beforeend', markup);
-  guard.hidden = false;
   gallery.refresh();
   smoothScroll();
 }
@@ -105,5 +87,19 @@ function smoothScroll() {
   window.scrollBy({
     top: cardHeight * 0.2,
     behavior: 'smooth',
+  });
+}
+function onObserve(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      infiniteObserver.unobserve(entry.target);
+      if (galleryEl.children.length === totalHits) {
+        Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+        return;
+      }
+      loadPics(input.value, (page += 1));
+    }
   });
 }
