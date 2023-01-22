@@ -7,6 +7,7 @@ import renderCard from './templates/renderCard.hbs';
 import { addBackToTop } from 'vanilla-back-to-top';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -31,6 +32,21 @@ ui.start('#firebaseui-auth-container', {
   ],
 });
 
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+
+const auth = getAuth();
+signInWithEmailAndPassword(auth, email, password)
+  .then(userCredential => {
+    // Signed in
+    const user = userCredential.user;
+    // ...
+  })
+  .catch(error => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+  });
+
+//--------------------------------
 const form = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
 const {
