@@ -5,48 +5,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import { fetchData } from './getPics';
 import renderCard from './templates/renderCard.hbs';
 import { addBackToTop } from 'vanilla-back-to-top';
-// Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: 'AIzaSyATfKW8po-lsad2VlUhO88_vy-0RZabxIk',
-  authDomain: 'picsearcher-62b2a.firebaseapp.com',
-  projectId: 'picsearcher-62b2a',
-  storageBucket: 'picsearcher-62b2a.appspot.com',
-  messagingSenderId: '481884107933',
-  appId: '1:481884107933:web:d94be9b9dd51bdd5789074',
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-ui.start('#firebaseui-auth-container', {
-  signInOptions: [
-    {
-      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      requireDisplayName: false,
-    },
-  ],
-});
-
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-
-const auth = getAuth();
-signInWithEmailAndPassword(auth, email, password)
-  .then(userCredential => {
-    // Signed in
-    const user = userCredential.user;
-    // ...
-  })
-  .catch(error => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });
-
-//--------------------------------
+import './auth';
 const form = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
 const {
