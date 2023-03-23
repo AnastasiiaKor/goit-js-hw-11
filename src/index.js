@@ -5,7 +5,6 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import { fetchData } from './getPics';
 import renderCard from './templates/renderCard.hbs';
 import { addBackToTop } from 'vanilla-back-to-top';
-import './auth';
 const form = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
 const {
